@@ -1,0 +1,44 @@
+# dsh-vision-better - core extension: session/image-admission
+# Target: @deepseek-ai/dsh-api-session-controller (DSH 0.2.0-rc.2, compiled lib/)
+# Apply from the package root:  git apply -p1 patches/0001-session-image-admission.patch
+# Regenerate:                   node patches/build-patch.mjs <dsh-src-root>
+diff --git a/lib/index.js b/lib/index.js
+index 3b8507e..5f06fe5 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -870,7 +870,15 @@ var SessionCommandController = class {
+ 					if (hasImage) {
+ 						const current = this.agents.selectionFor(agent).current;
+ 						const model = await this.ctx.llm.resolveModelInfo(current.provider, current.model);
+-						if (model.inputModalities !== void 0 && !model.inputModalities.includes("image")) throw new RemoteError("session/attachment-invalid", `Model "${current.model}" does not support image input.`, { reason: "MODEL_DOES_NOT_SUPPORT_IMAGES" });
++						if (model.inputModalities !== void 0 && !model.inputModalities.includes("image")) {
++							const admission = await this.ctx.waterfall(this, "session/image-admission", {
++							  agent,
++							  provider: current.provider,
++							  model: current.model,
++							  modelInfo: model
++							}, () => Promise.resolve(void 0));
++							if (admission?.admit !== true) throw new RemoteError("session/attachment-invalid", admission?.message ?? `Model "${current.model}" does not support image input.`, { reason: admission?.code ?? "MODEL_DOES_NOT_SUPPORT_IMAGES" });
++						}
+ 					}
+ 					const admission = resolvePromptFileReceipts(request.content, (receiptId) => this.ctx.fileUploads.resolve(agent, receiptId));
+ 					const message = createUserMessage({
+diff --git a/lib/types/commands.js b/lib/types/commands.js
+index cd4e27c..475423f 100644
+--- a/lib/types/commands.js
++++ b/lib/types/commands.js
+@@ -314,7 +314,13 @@ export class SessionCommandController {
+                         const current = this.agents.selectionFor(agent).current;
+                         const model = await this.ctx.llm.resolveModelInfo(current.provider, current.model);
+                         if (model.inputModalities !== undefined && !model.inputModalities.includes('image')) {
+-                            throw new RemoteError('session/attachment-invalid', `Model "${current.model}" does not support image input.`, { reason: 'MODEL_DOES_NOT_SUPPORT_IMAGES' });
++                            const admission = await this.ctx.waterfall(this, "session/image-admission", {
++                              agent,
++                              provider: current.provider,
++                              model: current.model,
++                              modelInfo: model
++                            }, () => Promise.resolve(void 0));
++                            if (admission?.admit !== true) throw new RemoteError('session/attachment-invalid', admission?.message ?? `Model "${current.model}" does not support image input.`, { reason: admission?.code ?? 'MODEL_DOES_NOT_SUPPORT_IMAGES' });
+                         }
+                     }
+                     const admission = resolvePromptFileReceipts(request.content, receiptId => this.ctx.fileUploads.resolve(agent, receiptId));

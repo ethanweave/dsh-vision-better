@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    name: syntax, host path, unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax gate (node --check, syntax only)
+        run: node scripts/check.mjs
+      - name: Upload nothing (no build artifacts, no secrets)
+
+  core-patch:
+    name: core patch (optional, needs a DSH tree)
+    runs-on: ubuntu-latest
+    # The patch can only be verified against an unpacked DSH tree, which this
+    # repository does not vendor. Export DSH_SRC_URL (a tarball or a checkout)
+    # in the repository's variables to enable this job; without it the job is
+    # skipped rather than silently reported as passing.
+    if: ${{ vars.DSH_SRC_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Fetch the DSH tree under test
+        run: |
+          mkdir -p .dsh-src
+          curl -fsSL "${{ vars.DSH_SRC_URL }}" -o .dsh-src/dsh.tar.gz
+          tar -xzf .dsh-src/dsh.tar.gz -C .dsh-src
+      - name: Verify the patch applies and behaves
+        run: node patches/verify-patch.mjs .dsh-src/dsh

@@ -1,0 +1,8 @@
+# Editor/OS noise
+.DS_Store
+Thumbs.db
+
+# Local verification artifacts
+.tmp-*
+patches/.work/
+node_modules/

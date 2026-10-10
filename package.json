@@ -1,0 +1,65 @@
+{
+  "name": "dsh-vision-better",
+  "version": "1.0.0",
+  "private": false,
+  "description": "DeepSeek Harness plugin: when the active model cannot accept images, a configurable GLM vision endpoint analyzes them in the background and the original model keeps answering in the same session.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./client/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/**/*.js",
+    "client/client.js",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh-CN.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE",
+    "examples/vision-better.example.json"
+  ],
+  "scripts": {
+    "test": "node test/run.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=22.19.0",
+    "dsh": ">=0.2.0-rc.2 <0.3.0-0"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "vision",
+    "glm",
+    "image-understanding",
+    "multimodal"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EthanAzoth/dsh-vision-better.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EthanAzoth/dsh-vision-better/issues"
+  },
+  "homepage": "https://github.com/EthanAzoth/dsh-vision-better#readme",
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-locale"
+      ],
+      "external": []
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# DSH Bundle 补丁：安装 vision-better 运行时行。
+# 该行可被 profile 的 cordis.patch.yml 按 id 覆盖（例如改 configPath）。
+- insert:
+    - id: vision-better
+      name: dsh-vision-better

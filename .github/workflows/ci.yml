@@ -7,16 +7,20 @@ on:
 
 jobs:
   verify:
-    name: syntax, host path, unit tests
+    name: syntax, host path, cordis activation, client bundle, unit tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Syntax gate (node --check, syntax only)
+      # check.mjs skips the two DSH-tree-dependent stages (core patch, service
+      # names) when no DSH source is provided, and says so loudly instead of
+      # reporting a green run that never exercised them.
+      - name: Local verification gate
         run: node scripts/check.mjs
-      - name: Upload nothing (no build artifacts, no secrets)
+      - name: Unit/integration suite (standalone, mocked vision API)
+        run: node test/run.mjs
 
   core-patch:
     name: core patch (optional, needs a DSH tree)

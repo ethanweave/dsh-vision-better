@@ -62,10 +62,10 @@ Install from GitHub (recommended), or from a local clone:
 
 ```bash
 # from GitHub
-dsh plugin --profile web add github:EthanAzoth/dsh-vision-better
+dsh plugin --profile web add github:ethanweave/dsh-vision-better
 
 # or from a released tarball
-dsh plugin --profile web add https://github.com/EthanAzoth/dsh-vision-better/releases/latest/download/dsh-vision-better-1.0.0.tgz
+dsh plugin --profile web add https://github.com/ethanweave/dsh-vision-better/releases/latest/download/dsh-vision-better-1.0.0.tgz
 
 # or from a local clone (an absolute path is accepted by the plugin manager)
 dsh plugin --profile web add /absolute/path/to/dsh-vision-better

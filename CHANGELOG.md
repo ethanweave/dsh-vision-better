@@ -43,5 +43,5 @@ First release, targeting DeepSeek Harness 0.2.0-rc.2.
   cross-checked against the shipped sources), `scripts/verify-client-bundle.mjs`
   (32 checks), and the `test/` suite.
 
-[Unreleased]: https://github.com/EthanAzoth/dsh-vision-better/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/EthanAzoth/dsh-vision-better/releases/tag/v1.0.0
+[Unreleased]: https://github.com/ethanweave/dsh-vision-better/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/ethanweave/dsh-vision-better/releases/tag/v1.0.0

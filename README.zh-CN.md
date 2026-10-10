@@ -56,10 +56,10 @@ patches/0001-session-image-admission.patch
 
 ```bash
 # 从 GitHub 安装
-dsh plugin --profile web add github:EthanAzoth/dsh-vision-better
+dsh plugin --profile web add github:ethanweave/dsh-vision-better
 
 # 或使用发布包
-dsh plugin --profile web add https://github.com/EthanAzoth/dsh-vision-better/releases/latest/download/dsh-vision-better-1.0.0.tgz
+dsh plugin --profile web add https://github.com/ethanweave/dsh-vision-better/releases/latest/download/dsh-vision-better-1.0.0.tgz
 
 # 或从本地克隆（插件管理器接受绝对路径）
 dsh plugin --profile web add /absolute/path/to/dsh-vision-better

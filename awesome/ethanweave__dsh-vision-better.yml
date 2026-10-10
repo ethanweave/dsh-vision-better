@@ -1,9 +1,10 @@
 # awesome-dsh-plugin 条目（dsh-vision-better v1.0.0）。
-# 提交：fork awesome-dsh-plugin/awesome-dsh-plugin，将本文件复制为 data/plugins/EthanAzoth__dsh-vision-better.yml，
-# 开一个只含此文件的 PR。类别 vision；dsh.bundle 已在 package.json 声明（CI 会核对）。
+# 提交：fork awesome-dsh-plugin/awesome-dsh-plugin，把本文件复制为
+# data/plugins/ethanweave__dsh-vision-better.yml，并开一个只含此文件的 PR。
+# 类别 vision；dsh.bundle 已在 package.json 声明（该仓库 CI 会核对）。
 
-url: https://github.com/EthanAzoth/dsh-vision-better
-name: EthanAzoth/dsh-vision-better
+url: https://github.com/ethanweave/dsh-vision-better
+name: ethanweave/dsh-vision-better
 category: vision
 description:
   en: "Vision relay for text-only models: a configurable GLM vision endpoint analyzes the images you attach in the background and the original model keeps answering in the same session, leaving your message, image, model and history untouched."

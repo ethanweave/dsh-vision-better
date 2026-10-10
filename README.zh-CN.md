@@ -76,9 +76,13 @@ dsh plugin --profile web add /absolute/path/to/dsh-vision-better
 
 ## 截图
 
-| 设置 → 图像识别 | 纯文本模型根据附图作答 |
-|---|---|
-| ![图像识别设置页：Key 状态、端点预设、模型 ID、启用开关与测试连接](docs/screenshots/settings-page.png) | ![聊天：原图与问题，同一模型在同一会话内回答](docs/screenshots/chat-result.png) |
+**设置 → 图像识别** —— Key 状态、端点预设、模型 ID、启用开关，以及一个绝不使用你会话图片的连接测试：
+
+![图像识别设置页：Key 状态、端点预设、模型 ID、启用开关与测试连接](docs/screenshots/settings-page.v2.png)
+
+**同一会话、同一模型** —— 附图在后台被分析，原模型据此作答；你的消息与图片全程未被改动：
+
+![聊天：原图与问题，同一模型在同一会话内回答](docs/screenshots/chat-result.v2.png)
 
 ---
 

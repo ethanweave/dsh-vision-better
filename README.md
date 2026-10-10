@@ -83,9 +83,15 @@ Then open **Settings -> 图像识别 / Vision Better**.
 
 ## Screenshots
 
-| Settings → 图像识别 | A text-only model answering from an attached image |
-|---|---|
-| ![The Vision Better settings page: API key status, endpoint presets, model id, enable toggle and connection test](docs/screenshots/settings-page.png) | ![The chat: the original image and question, answered by the same model in the same session](docs/screenshots/chat-result.png) |
+**Settings → 图像识别 (Vision Better)** — API key status, endpoint presets, model id, enable toggle and a
+connection test that never touches your conversation images:
+
+![The Vision Better settings page: API key status, endpoint presets, model id, enable toggle and connection test](docs/screenshots/settings-page.v2.png)
+
+**The same session, the same model** — an attached image is analyzed in the background and the original
+model answers from that analysis; your message and the image stay untouched:
+
+![The chat: the original image and question, answered by the same model in the same session](docs/screenshots/chat-result.v2.png)
 
 
 ---

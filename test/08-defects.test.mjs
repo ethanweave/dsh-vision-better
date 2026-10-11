@@ -287,7 +287,7 @@ test('REGRESSION S1: writeConfig whitelists its fields', () => {
     writeConfig({ endpoint: DEFAULT_ENDPOINT, model: 'glm-4.6v-flash', enabled: true, apiKey: SENTINEL_KEY, evil: 1 }, path);
     const raw = readFileSync(path, 'utf8');
     assert.equal(findSentinel(raw), undefined, 'a secret-shaped value must never be persisted by the config writer');
-    assert.deepEqual(Object.keys(JSON.parse(raw)).sort(), ['enabled', 'endpoint', 'model'], 'the writer must whitelist its fields');
+    assert.deepEqual(Object.keys(JSON.parse(raw)).sort(), ['enabled', 'endpoint', 'model', 'provider'], 'the writer must whitelist its fields');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

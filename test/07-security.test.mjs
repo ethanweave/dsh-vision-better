@@ -164,7 +164,7 @@ test('S1 the plugin config file holds no credential, only endpoint/model/enabled
     const configPath = join(dir, 'vision-better.json');
     assert.equal(writeConfig({ endpoint: BASE.endpoint, model: BASE.model, enabled: true }, configPath).ok, true);
     const written = JSON.parse(readFileSync(configPath, 'utf8'));
-    assert.deepEqual(Object.keys(written).sort(), ['enabled', 'endpoint', 'model']);
+    assert.deepEqual(Object.keys(written).sort(), ['enabled', 'endpoint', 'model', 'provider']);
     const raw = readFileSync(configPath, 'utf8');
     assert.equal(findSentinel(raw), undefined, 'no sentinel may ever appear in the config file');
     assert.doesNotMatch(raw, /apiKey|api_key|token|secret/i);
@@ -176,7 +176,8 @@ test('S1 the plugin config file holds no credential, only endpoint/model/enabled
 test('S1 describeApiKey reports presence only and never the secret', async () => {
   const harness = makeCtx({ credentials: makeCredentials({ GLM_API_KEY: SENTINEL_KEY }) });
   const described = await describeApiKey(harness.ctx);
-  assert.deepEqual(Object.keys(described).sort(), ['configured', 'source', 'writable']);
+  assert.deepEqual(Object.keys(described).sort(), ['configured', 'legacy', 'source', 'writable']);
+  assert.equal(described.legacy, true, 'the pre-provider reference name is flagged, never the value');
   assert.equal(findSentinel(described), undefined);
   assert.equal(await describeApiKey({ get: () => undefined }).then((info) => info.configured), false);
 });
@@ -230,7 +231,7 @@ test('S2/M7 the settings state payload contains no secret', async () => {
   const text = JSON.stringify(state);
   assert.equal(findSentinel(text), undefined, 'no sentinel may appear in the state payload');
   assert.equal(state.credential.configured, true);
-  assert.deepEqual(Object.keys(state.credential).sort(), ['configured', 'ref', 'source', 'writable']);
+  assert.deepEqual(Object.keys(state.credential).sort(), ['configured', 'legacy', 'ref', 'source', 'writable']);
   assert.ok(!('value' in state.credential) && !('apiKey' in state.credential));
   assert.ok(!('length' in state.credential), 'not even the length is exposed');
 });
@@ -411,7 +412,7 @@ test('S4 a client cannot inject a path, url, or extra field into the stored conf
     assert.equal(response.status, 200);
     const raw = readFileSync(configPath, 'utf8');
     const written = JSON.parse(raw);
-    assert.deepEqual(Object.keys(written).sort(), ['enabled', 'endpoint', 'model'], 'only known fields are persisted');
+    assert.deepEqual(Object.keys(written).sort(), ['enabled', 'endpoint', 'model', 'provider'], 'only known fields are persisted');
     assert.doesNotMatch(raw, /credentials\.yaml|passwd/);
     assert.equal(findSentinel(raw), undefined);
   } finally {
@@ -502,7 +503,11 @@ test('S1 readConfig falls back to defaults on a missing, corrupt, or hostile doc
     const path = join(dir, 'vision-better.json');
     for (const text of ['{broken', '[]', 'null', '"string"', '', '   ']) {
       writeFileSync(path, text, 'utf8');
-      assert.deepEqual(readConfig(base, path), base, `corrupt document ${JSON.stringify(text)} falls back`);
+      const read = readConfig(base, path);
+      assert.equal(read.endpoint, base.endpoint, `corrupt document ${JSON.stringify(text)} falls back`);
+      assert.equal(read.model, base.model);
+      assert.equal(read.enabled, base.enabled);
+      assert.match(String(read.diagnostic ?? ''), /not valid JSON/, 'and explains why instead of silently showing defaults');
     }
 
     writeFileSync(path, '{"endpoint":"http://evil.example/v1","model":"glm-4.6v-other"}', 'utf8');
@@ -511,6 +516,11 @@ test('S1 readConfig falls back to defaults on a missing, corrupt, or hostile doc
     assert.equal(merged.model, 'glm-4.6v-other', 'a valid sibling field still applies');
 
     assert.deepEqual(parseConfigDocument('{"unknown":1,"apiKey":"leak"}'), {}, 'unknown and secret-shaped keys are dropped');
+    assert.deepEqual(
+      parseConfigDocument('{"provider":"anthropic","unknown":1,"apiKey":"leak"}'),
+      { provider: 'anthropic' },
+      'provider is a known field and survives, secret-shaped keys never do',
+    );
     assert.equal(parseConfigDocument('{broken'), undefined);
     assert.equal(parseConfigDocument('[]'), undefined);
     assert.equal(parseConfigDocument('null'), undefined);

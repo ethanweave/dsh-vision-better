@@ -64,11 +64,11 @@ if (!existsSync(cordisEntry)) {
 
   check("plugin declares the documented service names", JSON.stringify(inject) === JSON.stringify(["llm", "attachments"]));
   check("webServer was provided", ctx.get("webServer") === webServer);
-  check("settings routes mounted in a real cordis fiber", routes.length === 4, `got ${routes.length}`);
+  check("settings routes mounted in a real cordis fiber", routes.length === 5, `got ${routes.length}`);
   check(
-    "exactly the four documented paths",
+    "exactly the five documented paths",
     routes.map((route) => route.path).sort().join(",") ===
-      "/vision-better/api/config,/vision-better/api/key,/vision-better/api/state,/vision-better/api/test",
+      "/vision-better/api/config,/vision-better/api/key,/vision-better/api/models,/vision-better/api/state,/vision-better/api/test",
     routes.map((route) => route.path).join(", "),
   );
 
@@ -87,12 +87,12 @@ if (!existsSync(cordisEntry)) {
   });
   bare.plugin({ name, inject, apply });
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 50));
-  check("re-running in a second context mounts its own routes", bareRoutes.length === 4, `got ${bareRoutes.length}`);
+  check("re-running in a second context mounts its own routes", bareRoutes.length === 5, `got ${bareRoutes.length}`);
 
   // The contract that killed the plugin once: a plugin fiber may NOT read a
   // context property it did not declare, and this plugin therefore takes its
   // config from `apply(ctx, config)` and its logger from `ctx.get("logger")`.
-  // The behavioural proof is that activation above mounted four routes on a
+  // The behavioural proof is that activation above mounted five routes on a
   // context where that guard is live; this probe records the guard itself so a
   // future regression is legible rather than mysterious. No source-text grep
   // here: the file documents both names in comments.
@@ -114,7 +114,7 @@ if (!existsSync(cordisEntry)) {
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 30));
   console.log(`  (guard: ${guarded.join(" | ")})`);
   check("the guard is live: an undeclared property read fails", guarded[0].startsWith("config: cannot get property"));
-  check("the plugin activates anyway, so it does not depend on those reads", routes.length === 4);
+  check("the plugin activates anyway, so it does not depend on those reads", routes.length === 5);
 
   // Which service names the plugin's injected child fiber actually sees.
   const probe = new Context();

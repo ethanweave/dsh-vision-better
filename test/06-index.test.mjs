@@ -353,7 +353,7 @@ test('M14 the settings routes mount through the webServer inject, under its exac
   assert.equal(harness.ctx.get('webserver'), undefined, 'the lowercase spelling is not a service; a regression to it must mount nothing');
   assert.deepEqual(
     registered.map((spec) => spec.path).sort(),
-    ['/vision-better/api/config', '/vision-better/api/key', '/vision-better/api/state', '/vision-better/api/test'],
+    ['/vision-better/api/config', '/vision-better/api/key', '/vision-better/api/models', '/vision-better/api/state', '/vision-better/api/test'],
   );
   assert.ok(registered.every((spec) => spec.kind === 'exact'));
   assert.ok(harness.logs.info.some((line) => /settings API mounted/.test(line)));
@@ -463,6 +463,7 @@ test('REGRESSION cordis: a full activation mounts the routes end to end', () => 
   assert.deepEqual(registered.sort(), [
     '/vision-better/api/config',
     '/vision-better/api/key',
+    '/vision-better/api/models',
     '/vision-better/api/state',
     '/vision-better/api/test',
   ]);

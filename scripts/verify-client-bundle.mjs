@@ -196,6 +196,8 @@ async function main() {
     check("rendered page names the endpoint field", renderedText.includes("endpointTitle"), renderedText.slice(0, 120));
     check("rendered page names the model field", renderedText.includes("modelTitle"));
     check("rendered page states the privacy policy", renderedText.includes("privacy"));
+    check("rendered page has a provider selector", renderedText.includes("providerTitle"));
+    check("rendered page has a model catalogue button", renderedText.includes("modelsFetch"));
     check("component uses no effect that fetches immediately", effects.length >= 1);
 
     // The mount effect must load state through the host routes only.

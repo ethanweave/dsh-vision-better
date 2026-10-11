@@ -54,6 +54,14 @@ window.__ModuleLoader__.load({
         testFail: "连接失败",
         testImageNote: "测试使用内置的小图，不会使用你会话中的任何图片。",
         rateLimitHint: "这是服务方限流：免费档的额度与并发都很低。等一两分钟再试，或到智谱控制台查看额度；也可以换用其他视觉模型。",
+        providerTitle: "供应商 / 协议",
+        providerHint: "OpenAI 兼容协议适用于智谱、反代、中转与自托管端点；Anthropic 与 Google Gemini 使用各自的原生协议。",
+        modelsFetch: "获取模型列表",
+        modelsLoading: "获取中…",
+        modelsPick: "从目录中选择…",
+        modelsEmpty: "目录为空",
+        modelsFail: "获取模型失败",
+        diagnosticTitle: "配置文件问题",
         privacyTitle: "隐私与额度",
         privacy:
           "只有当前模型不支持图片、且本轮确实带图片时，图片才会发送到你填写的视觉 API。图片不会发送给 DeepSeek 或其他未配置的服务。免费额度、速率限制与云端数据处理政策以服务方当前规则为准，本插件不承诺额度永久或无限。",
@@ -92,6 +100,14 @@ window.__ModuleLoader__.load({
         testFail: "Connection failed",
         testImageNote: "The test uses a built-in sample image, never an image from your conversation.",
         rateLimitHint: "This is the provider's rate limit: free-tier quota and concurrency are low. Wait a minute and retry, check your quota in the Zhipu console, or try another vision model.",
+        providerTitle: "Provider / protocol",
+        providerHint: "The OpenAI-compatible protocol covers Zhipu, reverse proxies, relays and self-hosted endpoints; Anthropic and Google Gemini use their native protocols.",
+        modelsFetch: "Fetch models",
+        modelsLoading: "Fetching…",
+        modelsPick: "Pick from the catalogue…",
+        modelsEmpty: "the catalogue is empty",
+        modelsFail: "could not fetch models",
+        diagnosticTitle: "Config file problem",
         privacyTitle: "Privacy and quota",
         privacy:
           "Images are sent to the vision API you configure, and only when the active model cannot read images and the turn actually carries one. They are never sent to DeepSeek or to any service you did not configure. Free quota, rate limits, and cloud processing terms follow the provider's current policy; this plugin does not promise that free access is permanent or unlimited.",
@@ -155,16 +171,25 @@ window.__ModuleLoader__.load({
       var t = props.t;
       var [state, setState] = React.useState(null);
       var [key, setKey] = React.useState("");
+      var [provider, setProvider] = React.useState("");
       var [endpoint, setEndpoint] = React.useState("");
       var [model, setModel] = React.useState("");
       var [busy, setBusy] = React.useState("");
       var [notice, setNotice] = React.useState(null);
       var [test, setTest] = React.useState(null);
+      var [models, setModels] = React.useState(null);
 
       function adopt(next) {
         setState(next);
+        setProvider(next.provider);
         setEndpoint(next.endpoint);
         setModel(next.model);
+        setModels(null);
+      }
+
+      /** The provider entry the page is currently editing (draft values only). */
+      function providerEntry() {
+        return (state?.providers ?? []).find((entry) => entry.id === provider) ?? null;
       }
 
       React.useEffect(() => {
@@ -256,6 +281,33 @@ window.__ModuleLoader__.load({
           { className: "vision-better-card" },
           field(
             t,
+            t("providerTitle"),
+            t("providerHint"),
+            h(
+              "select",
+              {
+                className: "vision-better-input",
+                value: provider,
+                onChange: (event) => {
+                  var id = event.target.value;
+                  setProvider(id);
+                  setModels(null);
+                  // Switching protocol fills in that provider's own defaults so
+                  // the user never has to know its base URL by heart.
+                  var entry = (state?.providers ?? []).find((item) => item.id === id);
+                  if (entry !== null && entry !== undefined) {
+                    setEndpoint(entry.endpoint);
+                    setModel(entry.model);
+                  }
+                },
+              },
+              (state?.providers ?? []).map((entry) =>
+                h("option", { key: entry.id, value: entry.id }, entry.label?.[currentLocale()] ?? entry.id),
+              ),
+            ),
+          ),
+          field(
+            t,
             t("endpointTitle"),
             t("endpointHint"),
             h("input", {
@@ -266,26 +318,28 @@ window.__ModuleLoader__.load({
               onChange: (event) => setEndpoint(event.target.value),
             }),
           ),
-          h(
-            "div",
-            { className: "vision-better-actions" },
-            (state?.presets ?? []).map((preset) =>
-              h(
-                "button",
-                {
-                  key: preset.id,
-                  type: "button",
-                  className: "vision-better-secondary",
-                  onClick: () => setEndpoint(preset.endpoint),
-                },
-                preset.label?.zh !== undefined || preset.label?.en !== undefined
-                  ? currentLocale() === "zh"
-                    ? preset.label.zh
-                    : preset.label.en
-                  : preset.endpoint,
-              ),
-            ),
-          ),
+          provider === "openai-compatible"
+            ? h(
+                "div",
+                { className: "vision-better-actions" },
+                (state?.presets ?? []).map((preset) =>
+                  h(
+                    "button",
+                    {
+                      key: preset.id,
+                      type: "button",
+                      className: "vision-better-secondary",
+                      onClick: () => setEndpoint(preset.endpoint),
+                    },
+                    preset.label?.zh !== undefined || preset.label?.en !== undefined
+                      ? currentLocale() === "zh"
+                        ? preset.label.zh
+                        : preset.label.en
+                      : preset.endpoint,
+                  ),
+                ),
+              )
+            : null,
           field(
             t,
             t("modelTitle"),
@@ -306,10 +360,47 @@ window.__ModuleLoader__.load({
               "button",
               {
                 type: "button",
+                className: "vision-better-secondary",
+                disabled: busy !== "" || state === null || endpoint.trim() === "",
+                onClick: async () => {
+                  setModels(null);
+                  await run("models", async () => {
+                    var result = await call("/vision-better/api/models", { provider, endpoint, apiKey: key.trim() === "" ? undefined : key.trim() });
+                    if (result.ok === true) setModels(result.models);
+                    else setNotice({ kind: "error", text: t("modelsFail") + ": " + (result.error ?? "unknown") });
+                    return undefined;
+                  });
+                },
+              },
+              busy === "models" ? t("modelsLoading") : t("modelsFetch"),
+            ),
+            models === null
+              ? null
+              : models.length === 0
+                ? h("span", { className: "vision-better-hint" }, t("modelsEmpty"))
+                : h(
+                    "select",
+                    {
+                      className: "vision-better-input",
+                      value: models.includes(model) ? model : "",
+                      onChange: (event) => setModel(event.target.value),
+                    },
+                    [h("option", { key: "", value: "" }, t("modelsPick"))].concat(
+                      models.map((id) => h("option", { key: id, value: id }, id)),
+                    ),
+                  ),
+          ),
+          h(
+            "div",
+            { className: "vision-better-actions" },
+            h(
+              "button",
+              {
+                type: "button",
                 className: "vision-better-primary",
                 disabled: busy !== "" || state === null,
                 onClick: () =>
-                  run("apply", () => call("/vision-better/api/config", { endpoint, model, enabled: state.enabled }), t("applied")),
+                  run("apply", () => call("/vision-better/api/config", { provider, endpoint, model, enabled: state.enabled }), t("applied")),
               },
               busy === "apply" ? t("saving") : t("apply"),
             ),
@@ -377,6 +468,9 @@ window.__ModuleLoader__.load({
           ? null
           : h("p", { className: notice.kind === "ok" ? "vision-better-notice-ok" : "vision-better-notice-error" }, notice.text),
 
+        state?.diagnostic !== undefined
+          ? h("p", { className: "vision-better-notice-error" }, t("diagnosticTitle") + ": " + state.diagnostic)
+          : null,
         h("h3", { className: "vision-better-subtitle" }, t("privacyTitle")),
         h("p", { className: "vision-better-hint" }, t("privacy")),
       );

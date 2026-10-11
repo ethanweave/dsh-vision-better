@@ -309,7 +309,8 @@ async function main() {
       },
     })];
     for (const route of host.services.get("webServer").routes) routes.push(route);
-    check("all four settings routes mounted", routes.length === 4, `got ${routes.length}`);
+    check("all five settings routes mounted", routes.length === 5, `got ${routes.length}`);
+    check("models catalogue route is registered", routes.some((route) => route.path === "/vision-better/api/models"));
 
     const server = createServer((request, response) => {
       const route = routes.find((candidate) => candidate.path === new URL(request.url, "http://localhost").pathname);

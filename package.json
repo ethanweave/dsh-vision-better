@@ -1,6 +1,6 @@
 {
   "name": "dsh-vision-better",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "DeepSeek Harness plugin: when the active model cannot accept images, a configurable GLM vision endpoint analyzes them in the background and the original model keeps answering in the same session.",
   "type": "module",

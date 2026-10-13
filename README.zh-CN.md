@@ -1,5 +1,7 @@
 # dsh-vision-better（DSH 图像识别）
 
+[![CI](https://github.com/ethanweave/dsh-vision-better/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ethanweave/dsh-vision-better/actions/workflows/ci.yml)
+
 [English](README.md) | 中文
 
 让 DeepSeek Harness 里**只支持文本的模型**也能处理图片——不切换模型、不新建会话、不改动任何一条可见消息。

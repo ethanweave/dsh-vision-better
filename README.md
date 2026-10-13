@@ -1,5 +1,7 @@
 # dsh-vision-better
 
+[![CI](https://github.com/ethanweave/dsh-vision-better/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ethanweave/dsh-vision-better/actions/workflows/ci.yml)
+
 English | [中文](README.zh-CN.md)
 
 Give a **text-only model** in DeepSeek Harness the ability to work with images - without switching the

@@ -9,7 +9,7 @@ directory changes DSH itself and has to be reviewed, versioned, and upstreamed o
 not declare image support:
 
 ```
-lib/index.js:870-874   (and lib/types/commands.js:313-318)
+lib/index.js:870-874 (0.2.0-rc.2) / :940 (0.2.1-rc.2); and lib/types/commands.js:313-318
 
 if (hasImage) {
     const current = this.agents.selectionFor(agent).current;
@@ -29,6 +29,18 @@ Facts that make a pure-plugin workaround impossible (verified in 0.2.0-rc.2):
   contribute to the answer. Monkey-patching it would fake model capability, which this project refuses to do.
 - No public event surrounds prompt admission (`dsh-tool-cordis/.../api-catalog.js` lists every extension
   point; there is no `session/prompt` or attachment-admission hook).
+
+## Verified versions
+
+The generator and its assertions were run against the shipped compiled `lib/` of:
+
+- **0.2.0-rc.2** — full gate (apply + semantics) green;
+- **0.2.1-rc.2** — the rejection moved to `lib/index.js:940` with the same shape, and
+  `patchSource` was executed against both target files of that build successfully
+  (the inserted waterfall and the preserved default rejection are both present).
+
+A DSH upgrade overwrites `app.asar`, so the extension must be re-applied after every
+upgrade (`patches/apply-core-patch.cmd`, then restart DeepSeek Harness).
 
 ## What the patch adds
 
